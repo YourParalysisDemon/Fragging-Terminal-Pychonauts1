@@ -45,6 +45,11 @@ def multi_run_gravity():
     new_thread.start()
 
 
+def multi_run_legendary():
+    new_thread = Thread(target=Legendary_mode, daemon=True)
+    new_thread.start()
+
+
 def god_hack():
     addr = getpointeraddress(module1 + 0x0038CBB8, health1_offsets)
     while 1:
@@ -56,6 +61,17 @@ def god_hack():
                 keyboard.press_and_release("space")
                 sleep(0.07)
                 continue
+        except pymem.exception.MemoryWriteError as e:
+            print(f"Error writing memory: {e}")
+        if keyboard.is_pressed("F1"):
+            break
+
+
+def Legendary_mode():
+    addr = getpointeraddress(module1 + 0x0038CBB8, health1_offsets)
+    while 1:
+        try:
+            mem.write_int(addr, 0x0)
         except pymem.exception.MemoryWriteError as e:
             print(f"Error writing memory: {e}")
         if keyboard.is_pressed("F1"):
@@ -103,6 +119,8 @@ button1 = tk.Button(root, text="God Mode", bg='black', fg='white', command=multi
 button1.grid(row=1, column=0)
 button2 = tk.Button(root, text="Fuck Gravity", bg='black', fg='white', command=multi_run_gravity)
 button2.grid(row=2, column=0)
+button3 = tk.Button(root, text="Legendary Mode", bg='black', fg='white', command=multi_run_legendary)
+button3.grid(row=3, column=0)
 button4 = tk.Button(root, text="Exit", bg='white', fg='black', command=root.destroy)
 button4.grid(row=4, column=0)
 label1 = tk.Label(master=root, text='C Show GUI', bg='red', fg='black')
