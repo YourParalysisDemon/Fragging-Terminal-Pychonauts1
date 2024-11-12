@@ -24,6 +24,7 @@ module1 = module_from_name(mem.process_handle, "Psychonauts.exe").lpBaseOfDll
 
 health1_offsets = [0X0, 0X4, 0X0, 0X100, 0X10, 0X0, 0X2C8]
 gravity1_offsets = [0X0, 0X94]
+blast_offsets = [0X4, 0X18, 0XC7, 0X253C]
 
 
 def getpointeraddress(base, offsets):
@@ -52,10 +53,11 @@ def multi_run_legendary():
 
 def god_hack():
     addr = getpointeraddress(module1 + 0x0038CBB8, health1_offsets)
+    addr1 = getpointeraddress(module1 + 0x00383838, blast_offsets)
     while 1:
         try:
             mem.write_int(addr, 0x47960000)
-
+            mem.write_int(addr1, 0x000001d2)
             sleep(0.02)
             if keyboard.is_pressed("space"):
                 keyboard.press_and_release("space")
