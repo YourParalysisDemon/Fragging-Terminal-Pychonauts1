@@ -25,6 +25,7 @@ module1 = module_from_name(mem.process_handle, "Psychonauts.exe").lpBaseOfDll
 health1_offsets = [0X0, 0X4, 0X0, 0X100, 0X10, 0X0, 0X2C8]
 gravity1_offsets = [0X0, 0X94]
 blast_offsets = [0X4, 0X18, 0XC7, 0X253C]
+run_offsets = [0X4, 0X708]
 
 
 def getpointeraddress(base, offsets):
@@ -38,6 +39,11 @@ def getpointeraddress(base, offsets):
 
 def multi_run_god():
     new_thread = Thread(target=god_hack, daemon=True)
+    new_thread.start()
+
+
+def multi_run_move():
+    new_thread = Thread(target=fuck_walking, daemon=True)
     new_thread.start()
 
 
@@ -92,6 +98,18 @@ def fuck_gravity():
             break
 
 
+def fuck_walking():
+    addr = getpointeraddress(module1 + 0x00383838, run_offsets)
+    while 1:
+        try:
+            mem.write_int(addr, 0x40c00000)
+        except pymem.exception.MemoryWriteError as e:
+            print(f"Error writing memory: {e}")
+        if keyboard.is_pressed("C"):
+            mem.write_int(addr, 0x3f800000)
+            break
+
+
 pygame.init()
 pygame.mixer_music.load("music/mod.mp3")
 pygame.mixer_music.play(1)
@@ -102,7 +120,7 @@ root.wm_iconphoto(False, photo)
 root.attributes("-topmost", True)
 root.title("Fragging Terminal")
 root.configure(background='dark red')
-root.geometry("265x145")
+root.geometry("265x180")
 
 
 def callback(url):
@@ -121,10 +139,12 @@ button1 = tk.Button(root, text="God Mode", bg='black', fg='white', command=multi
 button1.grid(row=1, column=0)
 button2 = tk.Button(root, text="Fuck Gravity", bg='black', fg='white', command=multi_run_gravity)
 button2.grid(row=2, column=0)
-button3 = tk.Button(root, text="Legendary Mode", bg='black', fg='white', command=multi_run_legendary)
+button3 = tk.Button(root, text="Fuck Walking", bg='black', fg='white', command=multi_run_move)
 button3.grid(row=3, column=0)
-button4 = tk.Button(root, text="Exit", bg='white', fg='black', command=root.destroy)
+button4 = tk.Button(root, text="Legendary Mode", bg='black', fg='white', command=multi_run_legendary)
 button4.grid(row=4, column=0)
+button5 = tk.Button(root, text="Exit", bg='white', fg='black', command=root.destroy)
+button5.grid(row=5, column=0)
 label1 = tk.Label(master=root, text='C Show GUI', bg='red', fg='black')
 label1.grid(row=0, column=3)
 label2 = tk.Label(master=root, text='V Hide GUI', bg='red', fg='black')
@@ -140,7 +160,7 @@ label6.grid(row=0, column=0)
 label8 = tk.Label(master=root, text='C Fix Gravity', bg='red', fg='black')
 label8.grid(row=5, column=3)
 link1 = tk.Label(root, text="Your Sleep Paralysis Demon", bg="black", fg="red", cursor="hand2")
-link1.grid(row=5, column=0)
+link1.grid(row=6, column=0)
 link1.bind("<Button-1>", lambda e: callback("https://steamcommunity.com/profiles/76561198259829950/"))
 
 
