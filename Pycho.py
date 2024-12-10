@@ -26,6 +26,7 @@ health1_offsets = [0X0, 0X4, 0X0, 0X100, 0X10, 0X0, 0X2C8]
 gravity1_offsets = [0X0, 0X94]
 blast_offsets = [0X4, 0X18, 0XC7, 0X253C]
 run_offsets = [0X4, 0X708]
+no_clip_offsets = [0X0, 0X110]
 
 
 def getpointeraddress(base, offsets):
@@ -44,6 +45,11 @@ def multi_run_god():
 
 def multi_run_move():
     new_thread = Thread(target=fuck_walking, daemon=True)
+    new_thread.start()
+
+
+def multi_run_walls():
+    new_thread = Thread(target=fuck_walls, daemon=True)
     new_thread.start()
 
 
@@ -98,8 +104,20 @@ def fuck_gravity():
             break
 
 
+def fuck_walls():
+    addr = getpointeraddress(module1 + 0x00386AE0, no_clip_offsets)
+    while 1:
+        try:
+            mem.write_int(addr, 0x00000000)
+        except pymem.exception.MemoryWriteError as e:
+            print(f"Error writing memory: {e}")
+        if keyboard.is_pressed("H"):
+            mem.write_int(addr, 0x2)
+            break
+
+
 def fuck_walking():
-    addr = getpointeraddress(module1 + 0x00383838, run_offsets)
+    addr = getpointeraddress(module1 + 0x00383834, run_offsets)
     while 1:
         try:
             mem.write_int(addr, 0x40c00000)
@@ -159,6 +177,8 @@ label6 = tk.Label(master=root, text='Main Loops', bg='red', fg='black')
 label6.grid(row=0, column=0)
 label8 = tk.Label(master=root, text='C Fix Gravity', bg='red', fg='black')
 label8.grid(row=5, column=3)
+label9 = tk.Label(master=root, text='G Fuck Walls', bg='red', fg='black')
+label9.grid(row=6, column=3)
 link1 = tk.Label(root, text="Your Sleep Paralysis Demon", bg="black", fg="red", cursor="hand2")
 link1.grid(row=6, column=0)
 link1.bind("<Button-1>", lambda e: callback("https://steamcommunity.com/profiles/76561198259829950/"))
@@ -166,6 +186,7 @@ link1.bind("<Button-1>", lambda e: callback("https://steamcommunity.com/profiles
 
 keyboard.add_hotkey("c", show)
 keyboard.add_hotkey("v", hide)
-keyboard.add_hotkey("F", fuck_gravity)
+keyboard.add_hotkey("F", multi_run_gravity)
+keyboard.add_hotkey("G", multi_run_walls)
 keyboard.add_hotkey("k", root.destroy)
 root.mainloop()
