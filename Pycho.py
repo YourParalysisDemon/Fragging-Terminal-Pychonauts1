@@ -26,10 +26,13 @@ gravity1_offsets = [0X0, 0X94]
 blast_offsets = [0X4, 0X18, 0XC7, 0X253C]
 run_offsets = [0X4, 0X708]
 no_clip_offsets = [0X0, 0X110]
+# no_clip_offsets = [0X0, 0X170] 0x00386AE0
 walk_offsets = [0X120]  # 003839D8
-z_offsets = [0X44, 0X10]  # 003839D8
+z_offsets = [0X10, 0X44]  # 003839D8
 y_offsets = [0X0, 0X40]  # 00386AE0
 x_offsets = [0X10, 0X48]  # 003839D8
+
+last_coords = None
 
 
 def getpointeraddress(base, offsets):
@@ -68,6 +71,11 @@ def multi_run_gravity():
 
 def multi_run_legendary():
     new_thread = Thread(target=Legendary_mode, daemon=True)
+    new_thread.start()
+
+
+def multi_run_stats():
+    new_thread = Thread(target=stats, daemon=True)
     new_thread.start()
 
 
@@ -148,6 +156,36 @@ def fuck_walking2():
             break
 
 
+def stats():
+    Reader = getpointeraddress(module1 + 0x003839D8, z_offsets)
+    Reader1 = getpointeraddress(module1 + 0x00386AE0, y_offsets)
+    Reader2 = getpointeraddress(module1 + 0x003839D8, x_offsets)
+
+    while 1:
+        try:
+            mem.read_float(Reader)
+            mem.read_float(Reader1)
+            mem.read_float(Reader2)
+            print(Reader, Reader1, Reader2)
+        except pymem.exception.MemoryWriteError as e:
+            print(f"Error writing memory: {e}")
+        if keyboard.is_pressed("F1"):
+            break
+
+
+# tele
+def tele_main_lodge():
+    addr = getpointeraddress(module1 + 0x003839D8, z_offsets)
+    addr1 = getpointeraddress(module1 + 0x00386AE0, y_offsets)
+    addr2 = getpointeraddress(module1 + 0x003839D8, x_offsets)
+    try:
+        mem.write_int(addr, 0x45d690af)
+        mem.write_int(addr1, 0xc5981d25)
+        mem.write_int(addr2, 0x45cda36d)
+    except pymem.exception.MemoryWriteError as e:
+        print(f"Error writing memory: {e}")
+
+
 pygame.init()
 pygame.mixer_music.load("music/mod.mp3")
 pygame.mixer_music.play(1)
@@ -158,7 +196,7 @@ root.wm_iconphoto(False, photo)
 root.attributes("-topmost", True)
 root.title("Fragging Terminal")
 root.configure(background='dark red')
-root.geometry("265x200")
+root.geometry("270x200")
 
 
 def callback(url):
@@ -179,12 +217,14 @@ button2 = tk.Button(root, text="Fuck Gravity", bg='black', fg='white', command=m
 button2.grid(row=2, column=0)
 button3 = tk.Button(root, text="Fuck Walking", bg='black', fg='white', command=multi_run_move)
 button3.grid(row=3, column=0)
-button3 = tk.Button(root, text="Fuck Walking 2", bg='black', fg='white', command=multi_run_move2)
-button3.grid(row=4, column=0)
-button4 = tk.Button(root, text="Legendary Mode", bg='black', fg='white', command=multi_run_legendary)
-button4.grid(row=5, column=0)
-button5 = tk.Button(root, text="Exit", bg='white', fg='black', command=root.destroy)
-button5.grid(row=6, column=0)
+button4 = tk.Button(root, text="Fuck Walking 2", bg='black', fg='white', command=multi_run_move2)
+button4.grid(row=4, column=0)
+button5 = tk.Button(root, text="Legendary Mode", bg='black', fg='white', command=multi_run_legendary)
+button5.grid(row=5, column=0)
+button6 = tk.Button(root, text="Coords", bg='black', fg='white', command=multi_run_stats)
+button6.grid(row=6, column=0)
+button7 = tk.Button(root, text="Exit", bg='white', fg='black', command=root.destroy)
+button7.grid(row=7, column=0)
 label1 = tk.Label(master=root, text='C Show GUI', bg='red', fg='black')
 label1.grid(row=0, column=3)
 label2 = tk.Label(master=root, text='V Hide GUI', bg='red', fg='black')
@@ -202,12 +242,13 @@ label8.grid(row=5, column=3)
 label9 = tk.Label(master=root, text='G Fuck Walls', bg='red', fg='black')
 label9.grid(row=6, column=3)
 link1 = tk.Label(root, text="Your Sleep Paralysis Demon", bg="black", fg="red", cursor="hand2")
-link1.grid(row=7, column=0)
+link1.grid(row=8, column=0)
 link1.bind("<Button-1>", lambda e: callback("https://steamcommunity.com/profiles/76561198259829950/"))
 
 keyboard.add_hotkey("c", show)
 keyboard.add_hotkey("v", hide)
 keyboard.add_hotkey("F", multi_run_gravity)
 keyboard.add_hotkey("G", multi_run_walls)
+keyboard.add_hotkey("1", tele_main_lodge)
 keyboard.add_hotkey("k", root.destroy)
 root.mainloop()
